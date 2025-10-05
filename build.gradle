@@ -30,7 +30,7 @@ sonar {
         property "sonar.java.coveragePlugin", "jacoco"
         property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacocoMergedReport/jacocoMergedReport.xml"
         property "sonar.pitest.reportPaths", "build/reports/pitest/mutations.xml"
-        property "sonar.externalIssuesReportPaths", "build/issues.json"
+        //property "sonar.externalIssuesReportPaths", "build/issues.json"
         property "sonar.projectKey", "sofmillan_assessmentTournamentsV2"
         property "sonar.organization", "sofmillan"
         property "sonar.host.url", "https://sonarcloud.io"
