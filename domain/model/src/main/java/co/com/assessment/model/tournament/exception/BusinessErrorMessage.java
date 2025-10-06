@@ -8,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum BusinessErrorMessage {
 
-    INVALID_CREDENTIALS(401, "Unauthorized","Invalid credentials");
+    INVALID_REQUEST(400, "BAD REQUEST", "Body cannot be empty");
     private final Integer statusCode;
     private final String title;
     private final String message;

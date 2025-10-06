@@ -11,4 +11,5 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Tournament {
+
 }
