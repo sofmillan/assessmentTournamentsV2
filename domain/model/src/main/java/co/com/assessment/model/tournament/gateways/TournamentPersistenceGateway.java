@@ -5,4 +5,5 @@ import reactor.core.publisher.Mono;
 
 public interface TournamentPersistenceGateway {
     Mono<Tournament> saveTournament(Tournament tournament);
+    Mono<Tournament> getTournamentById(Integer id);
  }

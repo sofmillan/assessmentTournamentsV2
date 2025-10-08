@@ -12,4 +12,8 @@ public class TournamentsUseCase {
     public Mono<Tournament> createTournament(Tournament tournamentMono){
         return tournamentPersistenceGateway.saveTournament(tournamentMono);
     }
+
+    public Mono<Tournament> getTournamentById(Integer id){
+        return tournamentPersistenceGateway.getTournamentById(id);
+    }
 }

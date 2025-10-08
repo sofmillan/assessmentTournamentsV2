@@ -1,6 +1,7 @@
 package co.com.assessment.api;
 
 import co.com.assessment.api.dto.request.TournamentRqDto;
+import co.com.assessment.api.dto.response.TournamentRsDto;
 import co.com.assessment.api.validation.ObjectValidator;
 import co.com.assessment.model.tournament.Tournament;
 import co.com.assessment.model.tournament.exception.BusinessErrorMessage;
@@ -26,14 +27,16 @@ public class Handler {
                 .doOnNext(objectValidator::validate)
                 .map(dto -> objectMapper.map(dto, Tournament.class))
                 .flatMap(tournamentsUseCase::createTournament)
-                .map(tournament -> objectMapper.map(tournament, TournamentRqDto.class))
+                .map(tournament -> objectMapper.map(tournament, TournamentRsDto.class))
                 .flatMap(this::buildResponse);
 
     }
 
     public Mono<ServerResponse> listenGETOtherUseCase(ServerRequest serverRequest) {
-        // useCase2.logic();
-        return ServerResponse.ok().bodyValue("");
+        Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
+        return tournamentsUseCase.getTournamentById(id)
+                .map(tournament -> objectMapper.map(tournament, TournamentRsDto.class))
+                .flatMap(this::buildResponse);
     }
 
     public Mono<ServerResponse> listenPOSTUseCase(ServerRequest serverRequest) {

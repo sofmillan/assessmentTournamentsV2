@@ -1,6 +1,8 @@
 package co.com.assessment.r2dbc;
 
 import co.com.assessment.model.tournament.Tournament;
+import co.com.assessment.model.tournament.exception.BusinessErrorMessage;
+import co.com.assessment.model.tournament.exception.BusinessException;
 import co.com.assessment.model.tournament.gateways.TournamentPersistenceGateway;
 import co.com.assessment.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
@@ -27,5 +29,10 @@ public class MyReactivePersistenceGatewayAdapter extends ReactiveAdapterOperatio
     @Override
     public Mono<Tournament> saveTournament(Tournament tournament) {
         return this.save(tournament);
+    }
+
+    @Override
+    public Mono<Tournament> getTournamentById(Integer id) {
+        return this.findById(id).switchIfEmpty(Mono.error(()-> new BusinessException(BusinessErrorMessage.TOURNAMENT_NOT_EXIST)));
     }
 }

@@ -13,7 +13,7 @@ public class Tournament {
     private Long id;
     private String description;
     private String name;
-    private Category category;
+    private Integer categoryId;
     private LocalDate startDate;
     private LocalDate endDate;
     private Double ticketPrice;
