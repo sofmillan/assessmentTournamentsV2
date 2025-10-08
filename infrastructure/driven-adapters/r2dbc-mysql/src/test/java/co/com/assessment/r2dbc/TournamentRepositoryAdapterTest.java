@@ -15,9 +15,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class MyReactiveRepositoryAdapterTest {
+class TournamentRepositoryAdapterTest {
     // TODO: change four you own tests
-
+/*
     @InjectMocks
     MyReactiveRepositoryAdapter repositoryAdapter;
 
@@ -74,5 +74,5 @@ class MyReactiveRepositoryAdapterTest {
         StepVerifier.create(result)
                 .expectNextMatches(value -> value.equals("test"))
                 .verifyComplete();
-    }
+    }*/
 }

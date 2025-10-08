@@ -5,13 +5,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 //@NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class Category {
+public class Ticket {
     private Long id;
-    private String name;
-    private Integer capacity;
+    private String userId;
+    private Tournament tournament;
+    private Double totalPrice;
+    private LocalDateTime purchaseDate;
+    private String code;
 }

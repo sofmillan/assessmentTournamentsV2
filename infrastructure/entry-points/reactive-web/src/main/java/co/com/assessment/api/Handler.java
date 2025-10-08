@@ -16,8 +16,6 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 public class Handler {
-//private  final UseCase useCase;
-//private  final UseCase2 useCase2;
     private final ObjectValidator objectValidator;
     private final TournamentsUseCase tournamentsUseCase;
     private final ObjectMapper objectMapper;
@@ -27,7 +25,7 @@ public class Handler {
                 .switchIfEmpty(Mono.error(()-> new BusinessException(BusinessErrorMessage.INVALID_REQUEST)))
                 .doOnNext(objectValidator::validate)
                 .map(dto -> objectMapper.map(dto, Tournament.class))
-                .flatMap(model -> tournamentsUseCase.createTournament(Mono.just(model)))
+                .flatMap(tournamentsUseCase::createTournament)
                 .map(tournament -> objectMapper.map(tournament, TournamentRqDto.class))
                 .flatMap(this::buildResponse);
 

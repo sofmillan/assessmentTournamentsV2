@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 import java.lang.reflect.ParameterizedType;
 import java.util.function.Function;
 
-public abstract class ReactiveAdapterOperations<E, D, I, R extends ReactiveCrudRepository<D, I> & ReactiveQueryByExampleExecutor<D>> {
+public abstract class ReactiveAdapterOperations<E, D, I, R extends ReactiveCrudRepository<D, I>>{
     protected R repository;
     protected ObjectMapper mapper;
     private final Class<D> dataClass;
@@ -26,6 +26,7 @@ public abstract class ReactiveAdapterOperations<E, D, I, R extends ReactiveCrudR
     }
 
     protected D toData(E entity) {
+        System.out.println(mapper.map(entity, dataClass));
         return mapper.map(entity, dataClass);
     }
 
@@ -34,6 +35,7 @@ public abstract class ReactiveAdapterOperations<E, D, I, R extends ReactiveCrudR
     }
 
     public Mono<E> save(E entity) {
+        System.out.println("SAVE IN ABSTRACT CLASS");
         return saveData(toData(entity))
                 .map(this::toEntity);
     }
@@ -55,10 +57,10 @@ public abstract class ReactiveAdapterOperations<E, D, I, R extends ReactiveCrudR
         return repository.findById(id).map(this::toEntity);
     }
 
-    public Flux<E> findByExample(E entity) {
+ /*   public Flux<E> findByExample(E entity) {
         return repository.findAll(Example.of(toData(entity)))
                 .map(this::toEntity);
-    }
+    }*/
 
     public Flux<E> findAll() {
         return repository.findAll()
