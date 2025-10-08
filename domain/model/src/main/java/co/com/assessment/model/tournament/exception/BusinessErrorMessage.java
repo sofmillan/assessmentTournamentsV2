@@ -9,6 +9,7 @@ import lombok.Getter;
 public enum BusinessErrorMessage {
 
     INVALID_REQUEST(400, "BAD REQUEST", "Body cannot be empty"),
+    CATEGORY_NOT_EXIST(404, "NOT FOUND", "Category does not exist"),
     TOURNAMENT_NOT_EXIST(404, "NOT FOUND", "Tournament does not exist");
     private final Integer statusCode;
     private final String title;

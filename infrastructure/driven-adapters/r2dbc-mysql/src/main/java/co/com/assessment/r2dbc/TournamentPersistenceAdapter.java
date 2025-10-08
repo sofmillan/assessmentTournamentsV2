@@ -10,13 +10,13 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
-public class MyReactivePersistenceGatewayAdapter extends ReactiveAdapterOperations<
+public class TournamentPersistenceAdapter extends ReactiveAdapterOperations<
         Tournament/* change for domain model */,
         TournamentEntity/* change for adapter model */,
         Integer,
         TournamentRepository
 > implements TournamentPersistenceGateway {
-    public MyReactivePersistenceGatewayAdapter(TournamentRepository repository, ObjectMapper mapper) {
+    public TournamentPersistenceAdapter(TournamentRepository repository, ObjectMapper mapper) {
         /**
          *  Could be use mapper.mapBuilder if your domain model implement builder pattern
          *  super(repository, mapper, d -> mapper.mapBuilder(d,ObjectModel.ObjectModelBuilder.class).build());

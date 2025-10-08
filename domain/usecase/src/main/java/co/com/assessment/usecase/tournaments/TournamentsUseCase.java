@@ -1,6 +1,9 @@
 package co.com.assessment.usecase.tournaments;
 
 import co.com.assessment.model.tournament.Tournament;
+import co.com.assessment.model.tournament.exception.BusinessErrorMessage;
+import co.com.assessment.model.tournament.exception.BusinessException;
+import co.com.assessment.model.tournament.gateways.CategoryPersistenceGateway;
 import co.com.assessment.model.tournament.gateways.TournamentPersistenceGateway;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -8,9 +11,16 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class TournamentsUseCase {
     private final TournamentPersistenceGateway tournamentPersistenceGateway;
+    private final CategoryPersistenceGateway categoryPersistenceGateway;
+    public Mono<Tournament> createTournament(Tournament tournament){
 
-    public Mono<Tournament> createTournament(Tournament tournamentMono){
-        return tournamentPersistenceGateway.saveTournament(tournamentMono);
+        return categoryPersistenceGateway
+                .findCategoryById(tournament.getCategoryId())
+                .switchIfEmpty(Mono.error(()-> new BusinessException(BusinessErrorMessage.CATEGORY_NOT_EXIST)))
+                .flatMap(category -> {
+                    tournament.setRemainingCapacity(category.getCapacity());
+                    return tournamentPersistenceGateway.saveTournament(tournament);
+                });
     }
 
     public Mono<Tournament> getTournamentById(Integer id){

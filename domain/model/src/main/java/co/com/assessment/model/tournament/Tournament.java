@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Tournament {
-    private Long id;
+    private Integer id;
     private String description;
     private String name;
     private Integer categoryId;
