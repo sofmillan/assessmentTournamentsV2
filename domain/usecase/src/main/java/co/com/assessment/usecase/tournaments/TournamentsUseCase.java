@@ -24,6 +24,8 @@ public class TournamentsUseCase {
     }
 
     public Mono<Tournament> getTournamentById(Integer id){
-        return tournamentPersistenceGateway.getTournamentById(id);
+        return tournamentPersistenceGateway
+                .getTournamentById(id)
+                .switchIfEmpty(Mono.error(()-> new BusinessException(BusinessErrorMessage.TOURNAMENT_NOT_EXIST)));
     }
 }

@@ -33,6 +33,6 @@ public class TournamentPersistenceAdapter extends ReactiveAdapterOperations<
 
     @Override
     public Mono<Tournament> getTournamentById(Integer id) {
-        return this.findById(id).switchIfEmpty(Mono.error(()-> new BusinessException(BusinessErrorMessage.TOURNAMENT_NOT_EXIST)));
+        return this.findById(id);
     }
 }
