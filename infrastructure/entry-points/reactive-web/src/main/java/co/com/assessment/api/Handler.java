@@ -1,6 +1,7 @@
 package co.com.assessment.api;
 
 import co.com.assessment.api.dto.request.TournamentRqDto;
+import co.com.assessment.api.dto.response.TournamentListRsDto;
 import co.com.assessment.api.dto.response.TournamentRsDto;
 import co.com.assessment.api.validation.ObjectValidator;
 import co.com.assessment.model.tournament.Tournament;
@@ -27,12 +28,13 @@ public class Handler {
 
 
     public Mono<ServerResponse> listenPOSTCreateTournament(ServerRequest serverRequest) {
-        String userId = this.getUser(serverRequest);
-        return serverRequest
-                .bodyToMono(TournamentRqDto.class)
+
+        return validateToken(serverRequest)
+                .flatMap(s -> s.bodyToMono(TournamentRqDto.class))
                 .switchIfEmpty(Mono.error(() -> new BusinessException(BusinessErrorMessage.INVALID_REQUEST)))
                 .doOnNext(objectValidator::validate)
                 .map(dto -> {
+                    String userId = this.getUser(serverRequest);
                     var model = objectMapper.map(dto, Tournament.class);
                     model.setUserId(userId);
                     return model;
@@ -43,10 +45,8 @@ public class Handler {
 
     }
 
-    public Mono<ServerResponse> listenGETOtherUseCase(ServerRequest serverRequest) {
-        // 1. Extract the path variable *synchronously* outside the reactive chain
+    public Mono<ServerResponse> listenGETFindTournamentById(ServerRequest serverRequest) {
         Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
-        // 2. Start the stream by validating the token
         return this.validateToken(serverRequest)
                 .flatMap(validatedRequest -> {
                     return tournamentsUseCase.getTournamentById(id);
@@ -55,14 +55,25 @@ public class Handler {
                 .flatMap(this::buildResponse);
     }
 
-    public Mono<ServerResponse> listenPOSTUseCase(ServerRequest serverRequest) {
-        // useCase.logic();
-        return ServerResponse.ok().bodyValue("");
+    public Mono<ServerResponse> listenGETAllTournaments(ServerRequest serverRequest) {
+        boolean createdByMe = serverRequest.queryParam("createdByMe")
+                .map(Boolean::parseBoolean)
+                .orElse(false);
+        return validateToken(serverRequest)
+                .flatMapMany(validatedRequest -> {
+                    if (createdByMe) {
+                        String userId = this.getUser(validatedRequest);
+                        return tournamentsUseCase.getTournamentsByUser(userId);
+                    } else {
+                        return tournamentsUseCase.getAllTournaments();
+                    }})
+                .map(tournament -> objectMapper.map(tournament, TournamentRsDto.class))
+                .collectList()
+                .map(a -> TournamentListRsDto.builder().tournaments(a))
+                .flatMap(this::buildResponse);
     }
 
-    private Mono<ServerResponse> buildResponse(Object userSignupRqDto) {
-        return ServerResponse.ok().bodyValue(userSignupRqDto);
-    }
+
 
     public Mono<ServerRequest> validateToken(ServerRequest serverRequest) {
 
@@ -91,7 +102,9 @@ public class Handler {
     }
 
     public String getUser(ServerRequest serverRequest){
-        this.validateToken(serverRequest);
         return this.jwtResolver.validateAndExtractSub(serverRequest.headers().firstHeader("Authorization"));
+    }
+    private Mono<ServerResponse> buildResponse(Object userSignupRqDto) {
+        return ServerResponse.ok().bodyValue(userSignupRqDto);
     }
 }

@@ -6,6 +6,7 @@ import co.com.assessment.model.tournament.exception.BusinessException;
 import co.com.assessment.model.tournament.gateways.CategoryPersistenceGateway;
 import co.com.assessment.model.tournament.gateways.TournamentPersistenceGateway;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -28,4 +29,13 @@ public class TournamentsUseCase {
                 .getTournamentById(id)
                 .switchIfEmpty(Mono.error(()-> new BusinessException(BusinessErrorMessage.TOURNAMENT_NOT_EXIST)));
     }
+
+    public Flux<Tournament> getAllTournaments(){
+        return tournamentPersistenceGateway.getAllTournaments();
+    }
+    public Flux<Tournament> getTournamentsByUser(String userId){
+        return tournamentPersistenceGateway.getTournamentsByUser(userId);
+    }
+
+
 }

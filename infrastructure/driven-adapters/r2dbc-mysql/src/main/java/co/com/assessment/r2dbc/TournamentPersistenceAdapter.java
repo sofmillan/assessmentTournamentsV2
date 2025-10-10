@@ -7,6 +7,7 @@ import co.com.assessment.model.tournament.gateways.TournamentPersistenceGateway;
 import co.com.assessment.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Repository
@@ -34,5 +35,15 @@ public class TournamentPersistenceAdapter extends ReactiveAdapterOperations<
     @Override
     public Mono<Tournament> getTournamentById(Integer id) {
         return this.findById(id);
+    }
+
+    @Override
+    public Flux<Tournament> getAllTournaments() {
+        return null;
+    }
+
+    @Override
+    public Flux<Tournament> getTournamentsByUser(String userId) {
+        return null;
     }
 }

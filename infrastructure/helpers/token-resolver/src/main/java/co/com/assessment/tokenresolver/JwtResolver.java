@@ -29,16 +29,16 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class JwtResolver {
     // IMPORTANT: Replace these placeholders with your actual Cognito User Pool details
-    private static final String USER_POOL_ID = "us-east-";
+    private static final String USER_POOL_ID = "us-east-1_dyZ9gU4TK";
     private static final String AWS_REGION = "us-east-1";
-    private static final String CLIENT_ID = "2lhel19t5efm0r";
+    private static final String CLIENT_ID = "2lhel6vdpc0nhv5mh19t5efm0r";
 
     // The issuer URI should match the 'iss' claim in the token
     //private static final String ISSUER = String.format("https://cognito-idp.%s.amazonaws.com/%s", AWS_REGION, USER_POOL_ID);
-    private static final String ISSUER = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_dyZ";
+    private static final String ISSUER = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_dyZ9gU4TK";
 
     // The JWKS URI where Cognito stores the public keys
-    private static final String JWKS_URL = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_d/.well-known/jwks.json";
+    private static final String JWKS_URL = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_dyZ9gU4TK/.well-known/jwks.json";
 
     private final JWTProcessor<SecurityContext> jwtProcessor;
 
