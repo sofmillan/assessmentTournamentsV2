@@ -22,7 +22,7 @@ public class TournamentRqDto {
     private String description;
 
     @NotNull(message = "categoryId is required")
-    private Long categoryId;
+    private Integer categoryId;
     @NotNull(message = "startDate is required")
     @Future(message = "startDate must be in the future")
     private LocalDate startDate;

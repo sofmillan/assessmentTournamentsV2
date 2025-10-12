@@ -1,10 +1,5 @@
 package co.com.assessment.r2dbc.entity;
 
-
-
-/*import jakarta.persistence.GeneratedValue;
-
-import jakarta.persistence.GenerationType;*/
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import lombok.Data;
@@ -27,16 +22,12 @@ public class TournamentEntity {
     private LocalDate startDate;
     @Column("end_date")
     private LocalDate endDate;
-
     @Column("user_id")
     private String userId;
-
     @Column("ticket_price")
     private Double ticketPrice;
-
     @Column("remaining_capacity")
     private Integer remainingCapacity;
-
     @Column("is_free")
     private Boolean free;
 }

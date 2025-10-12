@@ -24,7 +24,6 @@ public abstract class ReactiveAdapterOperations<E, D, I, R extends ReactiveCrudR
     }
 
     protected D toData(E entity) {
-        System.out.println(mapper.map(entity, dataClass));
         return mapper.map(entity, dataClass);
     }
 
@@ -33,7 +32,6 @@ public abstract class ReactiveAdapterOperations<E, D, I, R extends ReactiveCrudR
     }
 
     public Mono<E> save(E entity) {
-        System.out.println("SAVE IN ABSTRACT CLASS");
         return saveData(toData(entity))
                 .map(this::toEntity);
     }

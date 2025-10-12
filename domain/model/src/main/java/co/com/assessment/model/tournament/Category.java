@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Category {
-    private Long id;
+    private Integer id;
     private String name;
     private Integer capacity;
 }

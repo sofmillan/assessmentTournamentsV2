@@ -7,25 +7,18 @@ import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.stereotype.Component;
 
 import java.net.MalformedURLException;
-import java.util.Set;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 @Component
 public class JwtResolver {
     private static final String ISSUER = "";
@@ -65,7 +58,6 @@ public class JwtResolver {
         return subClaim.toString();
     }
     public boolean validate(String token) {
-        System.out.println("PROCESA TOKEN");
         this.processToken(token);
         return true;
     }
@@ -92,10 +84,6 @@ public class JwtResolver {
         }
     }
 
-
-    /**
-     * Custom exception to wrap validation errors.
-     */
     public static class JwtValidationException extends RuntimeException {
         public JwtValidationException(String message) {
             super(message);

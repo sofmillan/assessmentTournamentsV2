@@ -33,7 +33,7 @@ class TournamentUseCaseTest {
     @Test
     void shouldCreateTournament(){
         Category category = Category.builder()
-                .id(1L)
+                .id(1)
                 .name("Random category")
                 .capacity(20)
                 .build();

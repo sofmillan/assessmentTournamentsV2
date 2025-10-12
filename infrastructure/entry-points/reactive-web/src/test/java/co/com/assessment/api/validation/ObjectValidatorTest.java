@@ -20,7 +20,7 @@ class ObjectValidatorTest {
     @Test
     void validateShouldNotThrowExceptionWhenObjectIsValid() {
         TournamentRqDto validTournament = TournamentRqDto.builder()
-                .categoryId(1L)
+                .categoryId(1)
                 .name("Random name")
                 .description("Random description")
                 .free(true)
@@ -35,7 +35,7 @@ class ObjectValidatorTest {
     @Test
     void validateShouldThrowObjectValidationExceptionWhenRequiredFieldNotPresent() {
         TournamentRqDto tournamentWithoutPrice = TournamentRqDto.builder()
-                .categoryId(1L)
+                .categoryId(1)
                 .name("Random name")
                 .description("Random description")
                 .free(true)
