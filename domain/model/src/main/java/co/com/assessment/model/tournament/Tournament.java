@@ -1,14 +1,22 @@
 package co.com.assessment.model.tournament;
-import lombok.Builder;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-//import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.time.LocalDate;
 
 @Getter
 @Setter
-//@NoArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Tournament {
+    private Integer id;
+    private String description;
+    private String name;
+    private Integer categoryId;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private Double ticketPrice;
+    private boolean free;
+    private String userId;
+    private Integer remainingCapacity;
 }
