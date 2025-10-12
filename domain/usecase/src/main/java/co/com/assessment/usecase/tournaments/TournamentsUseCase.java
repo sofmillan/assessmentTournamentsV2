@@ -36,6 +36,4 @@ public class TournamentsUseCase {
     public Flux<Tournament> getTournamentsByUser(String userId){
         return tournamentPersistenceGateway.getTournamentsByUser(userId);
     }
-
-
 }

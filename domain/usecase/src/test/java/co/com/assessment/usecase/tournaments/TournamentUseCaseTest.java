@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -105,5 +106,30 @@ class TournamentUseCaseTest {
                 });
 
         verify(tournamentPersistenceGateway).getTournamentById(any(Integer.class));
+    }
+
+    @Test
+    void shouldGetAllTournaments(){
+        when(tournamentPersistenceGateway.getAllTournaments()).thenReturn(Flux.just(new Tournament(), new Tournament()));
+
+        tournamentsUseCase.getAllTournaments()
+                .as(StepVerifier::create)
+                .expectNextCount(2)
+                .verifyComplete();
+
+        verify(tournamentPersistenceGateway).getAllTournaments();
+    }
+
+    @Test
+    void shouldGetAllTournamentsCreatedByUserId(){
+        String userId = "edf94586-1259-4e34-b38d-6049e9b87ad0";
+        when(tournamentPersistenceGateway.getTournamentsByUser(userId)).thenReturn(Flux.just(new Tournament(), new Tournament()));
+
+        tournamentsUseCase.getTournamentsByUser(userId)
+                .as(StepVerifier::create)
+                .expectNextCount(2)
+                .verifyComplete();
+
+        verify(tournamentPersistenceGateway).getTournamentsByUser(userId);
     }
 }
