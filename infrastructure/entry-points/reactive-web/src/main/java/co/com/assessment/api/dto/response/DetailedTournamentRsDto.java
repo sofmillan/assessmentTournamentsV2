@@ -9,11 +9,14 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class TournamentRsDto {
+public class DetailedTournamentRsDto {
     private Long id;
+    private Integer categoryId;
     private String name;
+    private String description;
     private Integer remainingCapacity;
     private LocalDate startDate;
     private LocalDate endDate;
     private Double ticketPrice;
+    private Boolean free;
 }

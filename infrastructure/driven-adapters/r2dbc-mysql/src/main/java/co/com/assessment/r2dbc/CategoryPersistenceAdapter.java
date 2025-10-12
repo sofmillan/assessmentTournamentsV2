@@ -1,15 +1,13 @@
 package co.com.assessment.r2dbc;
 
 import co.com.assessment.model.tournament.Category;
-import co.com.assessment.model.tournament.Tournament;
 import co.com.assessment.model.tournament.gateways.CategoryPersistenceGateway;
-import co.com.assessment.model.tournament.gateways.TournamentPersistenceGateway;
+import co.com.assessment.r2dbc.entity.CategoryEntity;
 import co.com.assessment.r2dbc.helper.ReactiveAdapterOperations;
+import co.com.assessment.r2dbc.repository.CategoryRepository;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
-
-import java.util.function.Function;
 
 @Repository
 public class CategoryPersistenceAdapter  extends ReactiveAdapterOperations<

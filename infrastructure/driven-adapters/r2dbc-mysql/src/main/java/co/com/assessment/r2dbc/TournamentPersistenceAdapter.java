@@ -1,10 +1,10 @@
 package co.com.assessment.r2dbc;
 
 import co.com.assessment.model.tournament.Tournament;
-import co.com.assessment.model.tournament.exception.BusinessErrorMessage;
-import co.com.assessment.model.tournament.exception.BusinessException;
 import co.com.assessment.model.tournament.gateways.TournamentPersistenceGateway;
+import co.com.assessment.r2dbc.entity.TournamentEntity;
 import co.com.assessment.r2dbc.helper.ReactiveAdapterOperations;
+import co.com.assessment.r2dbc.repository.TournamentRepository;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
@@ -39,11 +39,11 @@ public class TournamentPersistenceAdapter extends ReactiveAdapterOperations<
 
     @Override
     public Flux<Tournament> getAllTournaments() {
-        return null;
+        return this.findAll();
     }
 
     @Override
     public Flux<Tournament> getTournamentsByUser(String userId) {
-        return null;
+        return repository.findByUserId(userId).map(this::toEntity);
     }
 }

@@ -1,6 +1,5 @@
 package co.com.assessment.model.tournament;
 import lombok.*;
-//import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
@@ -17,7 +16,7 @@ public class Tournament {
     private LocalDate startDate;
     private LocalDate endDate;
     private Double ticketPrice;
-    private boolean isFree;
+    private boolean free;
     private String userId;
     private Integer remainingCapacity;
 }

@@ -1,14 +1,13 @@
 package co.com.assessment.api;
 
 import co.com.assessment.api.dto.request.TournamentRqDto;
+import co.com.assessment.api.dto.response.DetailedTournamentRsDto;
 import co.com.assessment.api.dto.response.TournamentListRsDto;
 import co.com.assessment.api.dto.response.TournamentRsDto;
 import co.com.assessment.api.validation.ObjectValidator;
 import co.com.assessment.model.tournament.Tournament;
 import co.com.assessment.model.tournament.exception.BusinessErrorMessage;
 import co.com.assessment.model.tournament.exception.BusinessException;
-import co.com.assessment.model.tournament.exception.SecurityErrorMessage;
-import co.com.assessment.model.tournament.exception.SecurityException;
 import co.com.assessment.tokenresolver.JwtResolver;
 import co.com.assessment.usecase.tournaments.TournamentsUseCase;
 import org.reactivecommons.utils.ObjectMapper;
@@ -28,9 +27,8 @@ public class Handler {
 
 
     public Mono<ServerResponse> listenPOSTCreateTournament(ServerRequest serverRequest) {
-
-        return validateToken(serverRequest)
-                .flatMap(s -> s.bodyToMono(TournamentRqDto.class))
+        return serverRequest
+                .bodyToMono(TournamentRqDto.class)
                 .switchIfEmpty(Mono.error(() -> new BusinessException(BusinessErrorMessage.INVALID_REQUEST)))
                 .doOnNext(objectValidator::validate)
                 .map(dto -> {
@@ -42,16 +40,12 @@ public class Handler {
                 .flatMap(tournamentsUseCase::createTournament)
                 .map(tournament -> objectMapper.map(tournament, TournamentRsDto.class))
                 .flatMap(this::buildResponse);
-
     }
 
     public Mono<ServerResponse> listenGETFindTournamentById(ServerRequest serverRequest) {
         Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
-        return this.validateToken(serverRequest)
-                .flatMap(validatedRequest -> {
-                    return tournamentsUseCase.getTournamentById(id);
-                })
-                .map(tournament -> objectMapper.map(tournament, TournamentRsDto.class))
+        return tournamentsUseCase.getTournamentById(id)
+                .map(tournament -> objectMapper.map(tournament, DetailedTournamentRsDto.class))
                 .flatMap(this::buildResponse);
     }
 
@@ -59,7 +53,7 @@ public class Handler {
         boolean createdByMe = serverRequest.queryParam("createdByMe")
                 .map(Boolean::parseBoolean)
                 .orElse(false);
-        return validateToken(serverRequest)
+        return Mono.just(serverRequest)
                 .flatMapMany(validatedRequest -> {
                     if (createdByMe) {
                         String userId = this.getUser(validatedRequest);
@@ -69,40 +63,11 @@ public class Handler {
                     }})
                 .map(tournament -> objectMapper.map(tournament, TournamentRsDto.class))
                 .collectList()
-                .map(a -> TournamentListRsDto.builder().tournaments(a))
+                .map(tournamentList -> TournamentListRsDto.builder().tournaments(tournamentList).build())
                 .flatMap(this::buildResponse);
     }
-
-
-
-    public Mono<ServerRequest> validateToken(ServerRequest serverRequest) {
-
-        final String BEARER_PREFIX = "Bearer ";
-
-        // 1. Safely extract the token
-        String authHeader = serverRequest.headers().firstHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-            // If the header is missing or malformed, immediately return an error
-            return Mono.error(() -> new SecurityException(SecurityErrorMessage.INVALID_CREDENTIALS));
-        }
-
-        String token = authHeader.substring(BEARER_PREFIX.length());
-        System.out.println(token);
-        // 2. Wrap the synchronous validation in a Mono
-        return Mono.fromCallable(() -> {
-                    // Synchronous call to your resolver: throws exception (e.g., JwtValidationException) if invalid
-                    jwtResolver.validate(token);
-
-                    // If validation succeeds, return the original ServerRequest object
-                    return serverRequest;
-                })
-                // 3. Map any validation exception to your BusinessException
-                .onErrorMap(e -> new SecurityException(SecurityErrorMessage.INVALID_CREDENTIALS));
-    }
-
     public String getUser(ServerRequest serverRequest){
-        return this.jwtResolver.validateAndExtractSub(serverRequest.headers().firstHeader("Authorization"));
+        return this.jwtResolver.validateAndExtractSub(serverRequest.headers().firstHeader("Authorization").substring(7));
     }
     private Mono<ServerResponse> buildResponse(Object userSignupRqDto) {
         return ServerResponse.ok().bodyValue(userSignupRqDto);

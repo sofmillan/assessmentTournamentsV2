@@ -1,4 +1,4 @@
-package co.com.assessment.r2dbc;
+package co.com.assessment.r2dbc.entity;
 
 
 
@@ -21,7 +21,6 @@ public class TournamentEntity {
     private Integer id;
     private String description;
     private String name;
-
     @Column("category_id")
     private Integer categoryId;
     @Column("start_date")
@@ -29,7 +28,9 @@ public class TournamentEntity {
     @Column("end_date")
     private LocalDate endDate;
 
-/*    private String userId;*/
+    @Column("user_id")
+    private String userId;
+
     @Column("ticket_price")
     private Double ticketPrice;
 
@@ -37,5 +38,5 @@ public class TournamentEntity {
     private Integer remainingCapacity;
 
     @Column("is_free")
-    private Boolean isFree;
+    private Boolean free;
 }

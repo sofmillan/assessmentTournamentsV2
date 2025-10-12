@@ -8,6 +8,6 @@ import lombok.Getter;
 public enum SecurityErrorMessage {
     INVALID_CREDENTIALS(401, "Unauthorized","Invalid credentials");
     private final Integer statusCode;
-    private final String title;
+    private final String status;
     private final String message;
 }

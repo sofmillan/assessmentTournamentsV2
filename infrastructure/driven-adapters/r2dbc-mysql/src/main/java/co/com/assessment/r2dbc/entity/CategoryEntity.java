@@ -1,4 +1,4 @@
-package co.com.assessment.r2dbc;
+package co.com.assessment.r2dbc.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
