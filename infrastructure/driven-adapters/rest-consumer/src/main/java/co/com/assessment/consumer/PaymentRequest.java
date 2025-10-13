@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class ObjectRequest {
+public class PaymentRequest {
 
     private String currency;
     private String paymentMethod;

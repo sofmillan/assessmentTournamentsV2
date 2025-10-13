@@ -4,6 +4,7 @@ import co.com.assessment.model.tournament.Confirmation;
 import co.com.assessment.model.tournament.PurchaseDetails;
 import co.com.assessment.model.tournament.gateways.PaymentGateway;
 import org.reactivecommons.utils.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -12,31 +13,34 @@ import reactor.core.publisher.Mono;
 public class RestConsumer implements PaymentGateway{
     private final WebClient client;
     private final ObjectMapper mapper;
+    private final String postmanApiKey;
 
-    public RestConsumer(ObjectMapper mapper) {
-        this.client = WebClient.create("https://4d1d4fa3-b992-459f-97ec-78a6c0baad33.mock.pstmn.io");
+    public RestConsumer(WebClient client,
+                        ObjectMapper mapper,
+                        @Value("${adapter.restconsumer.apikey}") String postmanApiKey) {
+        this.client = client;
         this.mapper = mapper;
+        this.postmanApiKey = postmanApiKey;
     }
 
     @Override
     public Mono<Confirmation> processPayment(PurchaseDetails purchaseDetails) {
-        ObjectRequest request = mapper.map(purchaseDetails, ObjectRequest.class);
-        Mono<ObjectResponse> response = client.post()
+        PaymentRequest request = mapper.map(purchaseDetails, PaymentRequest.class);
+        Mono<PaymentResponse> response = client.post()
                 .uri("/pay")
-                .header("x-api-key", "")
-                .body(Mono.just(request), ObjectRequest.class)
+                .header("x-api-key", postmanApiKey)
+                .body(Mono.just(request), PaymentRequest.class)
                 .retrieve()
-                .bodyToMono(ObjectResponse.class);
-
+                .bodyToMono(PaymentResponse.class);
 
         return response.flatMap(r -> Mono.just(Confirmation.builder()
                     .status(r.getStatus())
-                    .transactionDetails(Confirmation.TransactionDetails.builder()
+                    .transactionDetails(
+                            Confirmation.TransactionDetails.builder()
                             .transactionId(r.getTransactionDetails().getTransactionId())
                             .paymentMethod(r.getTransactionDetails().getPaymentMethod())
                             .amountPaid(r.getTransactionDetails().getAmountPaid())
                             .build())
-
                     .build()));
     }
 }

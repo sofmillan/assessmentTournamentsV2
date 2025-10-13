@@ -11,7 +11,10 @@ spring:
       path: "/h2"
   profiles:
     include: null
-
+  r2dbc:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 management:
   endpoints:
     web:
@@ -21,5 +24,17 @@ management:
     health:
       probes:
         enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
+aws:
+  cognito:
+    issuer: ${ISSUER}
+    jwksUrl: ${JWKS_URL}
+adapter:
+  restconsumer:
+    url: ${PAYMENT_API_URL}
+    apikey: ${POSTMAN_APIKEY}
+

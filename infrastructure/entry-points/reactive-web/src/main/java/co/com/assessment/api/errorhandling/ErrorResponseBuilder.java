@@ -3,6 +3,7 @@ package co.com.assessment.api.errorhandling;
 import co.com.assessment.api.validation.ObjectValidationException;
 import co.com.assessment.model.tournament.exception.BusinessException;
 import co.com.assessment.model.tournament.exception.SecurityException;
+import co.com.assessment.model.tournament.exception.TechnicalException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -34,6 +35,14 @@ public class ErrorResponseBuilder {
         return buildErrorResponse(metadata, context);
     }
 
+    public Mono<ErrorModel> buildErrorResponse(TechnicalException ex, ServerRequest request){
+        var metadata = new ErrorMetadata(ex.getTechnicalErrorMessage().getStatus(),
+                ex.getTechnicalErrorMessage().getStatusCode(),
+                ex.getTechnicalErrorMessage().getMessage());
+        var context = new ErrorContext(request, ex);
+        return buildErrorResponse(metadata, context);
+    }
+
     public Mono<ErrorModel> buildErrorResponse(ObjectValidationException ex, ServerRequest request){
         var metadata = new ErrorMetadata("Bad request",
                 400,
@@ -60,8 +69,8 @@ public class ErrorResponseBuilder {
         return Mono.just(response);
     }
 
-    public Mono<ServerResponse> buildfinalResponse(ErrorModel errorModel){
-        HttpStatus status = Optional.ofNullable(HttpStatus.resolve(errorModel.getStatusCode())).orElse(HttpStatus.BAD_REQUEST);
+    public Mono<ServerResponse> buildFinalResponse(ErrorModel errorModel){
+        HttpStatus status = Optional.of(HttpStatus.resolve(errorModel.getStatusCode())).orElse(HttpStatus.BAD_REQUEST);
 
         return ServerResponse.status(status)
                 .bodyValue(errorModel);

@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class ObjectResponse {
+public class PaymentResponse {
 
     private String status;
     private TransactionDetails transactionDetails;

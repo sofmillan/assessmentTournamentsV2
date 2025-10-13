@@ -2,9 +2,10 @@ package co.com.assessment.usecase.tournaments;
 
 import co.com.assessment.model.tournament.PurchaseDetails;
 import co.com.assessment.model.tournament.Ticket;
+import co.com.assessment.model.tournament.exception.BusinessErrorMessage;
+import co.com.assessment.model.tournament.exception.BusinessException;
 import co.com.assessment.model.tournament.gateways.PaymentGateway;
 import co.com.assessment.model.tournament.gateways.TicketPersistenceGateway;
-import co.com.assessment.model.tournament.gateways.TournamentPersistenceGateway;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -17,26 +18,20 @@ public class TicketsUseCase {
     private final TournamentsUseCase tournamentUseCase;
     private final PaymentGateway paymentGateway;
     private final TicketPersistenceGateway ticketPersistenceGateway;
+    public static final Double PLATFORM_FEE = 0.05;
 
     public Mono<Ticket> purchaseTicket(PurchaseDetails purchaseDetails, String userId){
-        System.out.println("ENTERS USE CASE");
-        // 1. Find the Tournament
         return tournamentUseCase.getTournamentById(purchaseDetails.getTournamentId())
                 .flatMap(tournament ->{
+                    if(tournament.getRemainingCapacity()==0) throw new BusinessException(BusinessErrorMessage.TOURNAMENT_SOLD_OUT);
+
                     Mono<String> transactionIdMono;
                     if(tournament.isFree()){
-                        System.out.println("THIS TOURNAMENT IS FREE");
                         transactionIdMono = Mono.just("");
                     }else{
-                        System.out.println("THIS TOURNAMENT IS not free");
+                        purchaseDetails.setAmount(tournament.getTicketPrice() + (tournament.getTicketPrice() * PLATFORM_FEE));
                         transactionIdMono = paymentGateway.processPayment(purchaseDetails)
-                                .flatMap(confirmation -> {
-                                    if (!confirmation.isSuccessful()) {
-                                        return Mono.error(new RuntimeException("Payment declined. Details: "));
-                                    }
-                                    return Mono.just(confirmation.getTransactionDetails().getTransactionId());
-                                });
-
+                                .flatMap(confirmation -> Mono.just(confirmation.getTransactionDetails().getTransactionId()));
                     }
 
                     return transactionIdMono
@@ -46,20 +41,16 @@ public class TicketsUseCase {
                                         .tournamentId(tournament.getId())
                                         .userId(userId)
                                         .purchaseDate(LocalDateTime.now())
+                                        .transactionId(transactionId)
+                                        .totalPrice(tournament.getTicketPrice() == 0 ? tournament.getTicketPrice() : purchaseDetails.getAmount())
                                         .build();
-
-                                if (!transactionId.isEmpty()) {
-                                    ticket.setTransactionId(transactionId);
-                                }
 
                                 tournament.setRemainingCapacity(tournament.getRemainingCapacity()-1);
 
                                 return ticketPersistenceGateway.saveTicket(ticket)
                                         .zipWith(tournamentUseCase.updateRemainingCapacity(tournament));
                             });
-
                 })
-                // 5. Extract the Ticket (T1) from the Tuple and return it as Mono<Ticket>
                 .map(Tuple2::getT1);
     }
 }

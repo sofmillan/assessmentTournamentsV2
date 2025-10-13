@@ -1,7 +1,9 @@
 package co.com.assessment.api;
 
+import co.com.assessment.api.dto.request.PurchaseTicketRqDto;
 import co.com.assessment.api.dto.request.TournamentRqDto;
 import co.com.assessment.api.dto.response.DetailedTournamentRsDto;
+import co.com.assessment.api.dto.response.TicketRsDto;
 import co.com.assessment.api.dto.response.TournamentListRsDto;
 import co.com.assessment.api.dto.response.TournamentRsDto;
 import co.com.assessment.api.validation.ObjectValidator;
@@ -72,8 +74,14 @@ public class Handler {
     }
 
     public Mono<ServerResponse> listenGETPurchaseTicket(ServerRequest serverRequest) {
-        return serverRequest.bodyToMono(PurchaseDetails.class)
-                .flatMap(details -> ticketsUseCase.purchaseTicket(details, "randomuser"))
+        String userId = this.getUser(serverRequest);
+
+        return serverRequest.bodyToMono(PurchaseTicketRqDto.class)
+                .switchIfEmpty(Mono.error(() -> new BusinessException(BusinessErrorMessage.INVALID_REQUEST)))
+                .doOnNext(objectValidator::validate)
+                .map(rqDto -> objectMapper.map(rqDto, PurchaseDetails.class))
+                .flatMap(details -> ticketsUseCase.purchaseTicket(details, userId))
+                .map(ticket -> objectMapper.map(ticket, TicketRsDto.class))
                 .flatMap(this::buildResponse);
     }
 
