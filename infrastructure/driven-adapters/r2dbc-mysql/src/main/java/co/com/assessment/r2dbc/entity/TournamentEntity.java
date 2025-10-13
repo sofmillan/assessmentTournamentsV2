@@ -2,14 +2,18 @@ package co.com.assessment.r2dbc.entity;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import java.time.LocalDate;
 
 @Table("tournaments")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class TournamentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

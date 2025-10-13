@@ -11,13 +11,13 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public class CategoryPersistenceAdapter  extends ReactiveAdapterOperations<
-        Category/* change for domain model */,
-        CategoryEntity/* change for adapter model */,
+        Category,
+        CategoryEntity,
         Integer,
         CategoryRepository
         > implements CategoryPersistenceGateway {
     protected CategoryPersistenceAdapter(CategoryRepository repository, ObjectMapper mapper) {
-        super(repository, mapper, d -> mapper.map(d, Category.class/* change for domain model */));
+        super(repository, mapper, d -> mapper.map(d, Category.class));
     }
 
     @Override

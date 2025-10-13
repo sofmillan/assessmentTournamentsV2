@@ -1,14 +1,18 @@
 package co.com.assessment.r2dbc.entity;
 
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 @Table("category")
 public class CategoryEntity {
     @Id
-    private Long id;
+    private Integer id;
     private String name;
     private Integer capacity;
 
