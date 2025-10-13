@@ -26,3 +26,5 @@ include ':r2dbc-mysql'
 project(':r2dbc-mysql').projectDir = file('./infrastructure/driven-adapters/r2dbc-mysql')
 include ':token-resolver'
 project(':token-resolver').projectDir = file('./infrastructure/helpers/token-resolver')
+include ':rest-consumer'
+project(':rest-consumer').projectDir = file('./infrastructure/driven-adapters/rest-consumer')

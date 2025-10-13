@@ -14,14 +14,19 @@ public class TournamentsUseCase {
     private final TournamentPersistenceGateway tournamentPersistenceGateway;
     private final CategoryPersistenceGateway categoryPersistenceGateway;
     public Mono<Tournament> createTournament(Tournament tournament){
+        Mono<Tournament> validTournamentCreation = tournament.isFree()
+                ? checkFreeTournamentLimit(tournament)
+                : Mono.just(tournament);
 
-        return categoryPersistenceGateway
-                .findCategoryById(tournament.getCategoryId())
-                .switchIfEmpty(Mono.error(()-> new BusinessException(BusinessErrorMessage.CATEGORY_NOT_EXIST)))
-                .flatMap(category -> {
-                    tournament.setRemainingCapacity(category.getCapacity());
-                    return tournamentPersistenceGateway.saveTournament(tournament);
-                });
+        return validTournamentCreation
+                .flatMap(checkedTournament -> categoryPersistenceGateway
+                            .findCategoryById(checkedTournament.getCategoryId())
+                            .switchIfEmpty(Mono.error(()-> new BusinessException(BusinessErrorMessage.CATEGORY_NOT_EXIST)))
+                            .flatMap(category -> {
+                                checkedTournament.setRemainingCapacity(category.getCapacity());
+                                return tournamentPersistenceGateway.saveTournament(checkedTournament);
+                            })
+                );
     }
 
     public Mono<Tournament> getTournamentById(Integer id){
@@ -35,5 +40,23 @@ public class TournamentsUseCase {
     }
     public Flux<Tournament> getTournamentsByUser(String userId){
         return tournamentPersistenceGateway.getTournamentsByUser(userId);
+    }
+
+    public Mono<Tournament> updateRemainingCapacity(Tournament tournament){
+        tournament.setRemainingCapacity(tournament.getRemainingCapacity()-1);
+        return tournamentPersistenceGateway.saveTournament(tournament);
+    }
+
+    private Mono<Tournament> checkFreeTournamentLimit(Tournament tournament) {
+        return this.tournamentPersistenceGateway
+                .getTournamentsByUser(tournament.getUserId())
+                .filter(Tournament::isFree)
+                .count()
+                .flatMap(count -> {
+                    if (count >= 2L) {
+                        throw new BusinessException(BusinessErrorMessage.FREE_TOURNAMENTS_EXCEEDED);
+                    }
+                    return Mono.just(tournament);
+                });
     }
 }

@@ -12,8 +12,9 @@ import java.time.LocalDateTime;
 public class Ticket {
     private Long id;
     private String userId;
-    private Tournament tournament;
+    private Integer tournamentId;
     private Double totalPrice;
     private LocalDateTime purchaseDate;
     private String code;
+    private String transactionId;
 }
