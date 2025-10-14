@@ -1,8 +1,8 @@
 package co.com.assessment.consumer;
 
-import co.com.assessment.model.tournament.Confirmation;
-import co.com.assessment.model.tournament.PurchaseDetails;
-import co.com.assessment.model.tournament.gateways.PaymentGateway;
+import co.com.assessment.model.Confirmation;
+import co.com.assessment.model.PurchaseDetails;
+import co.com.assessment.model.gateways.PaymentGateway;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

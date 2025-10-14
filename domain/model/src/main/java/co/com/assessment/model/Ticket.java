@@ -1,4 +1,4 @@
-package co.com.assessment.model.tournament;
+package co.com.assessment.model;
 
 import lombok.*;
 
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Ticket {
-    private Long id;
+    private Integer id;
     private String userId;
     private Integer tournamentId;
     private Double totalPrice;

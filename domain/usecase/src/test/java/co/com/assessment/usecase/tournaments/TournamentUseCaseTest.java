@@ -1,12 +1,13 @@
 package co.com.assessment.usecase.tournaments;
 
-import co.com.assessment.model.tournament.Category;
-import co.com.assessment.model.tournament.Tournament;
-import co.com.assessment.model.tournament.exception.BusinessErrorMessage;
-import co.com.assessment.model.tournament.exception.BusinessException;
-import co.com.assessment.model.tournament.gateways.CategoryPersistenceGateway;
-import co.com.assessment.model.tournament.gateways.TournamentPersistenceGateway;
+import co.com.assessment.model.Category;
+import co.com.assessment.model.Tournament;
+import co.com.assessment.model.exception.BusinessErrorMessage;
+import co.com.assessment.model.exception.BusinessException;
+import co.com.assessment.model.gateways.CategoryPersistenceGateway;
+import co.com.assessment.model.gateways.TournamentPersistenceGateway;
 import org.junit.jupiter.api.AssertionsKt;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,17 +31,50 @@ class TournamentUseCaseTest {
     @InjectMocks
     private TournamentsUseCase tournamentsUseCase;
 
+    private Tournament tournament;
+    @BeforeEach
+    void setUp(){
+        tournament = Tournament.builder()
+                .name("Random tournament")
+                .categoryId(1)
+                .userId("05639cbe-8368-4c64-9a50-28a4f0795f6f")
+                .free(true)
+                .build();
+    }
+
     @Test
-    void shouldCreateTournament(){
+    void shouldCreateFreeTournamentWhenUserHasNotReachLimit(){
         Category category = Category.builder()
                 .id(1)
                 .name("Random category")
                 .capacity(20)
                 .build();
-        Tournament tournament = Tournament.builder()
-                .name("Random tournament")
-                .categoryId(1)
+
+        when(categoryPersistenceGateway.findCategoryById(any(Integer.class))).thenReturn(Mono.just(category));
+        when(tournamentPersistenceGateway.getTournamentsByUser(any(String.class))).thenReturn(Flux.empty());
+        when(tournamentPersistenceGateway.saveTournament(any(Tournament.class))).thenReturn(Mono.just(tournament));
+
+        tournamentsUseCase.createTournament(tournament)
+                .as(StepVerifier::create)
+                .assertNext(createdTournament ->{
+                    assertNotNull(createdTournament);
+                    assertNotNull(createdTournament.getRemainingCapacity());
+                }).verifyComplete();
+
+        verify(tournamentPersistenceGateway).getTournamentsByUser(any(String.class));
+        verify(categoryPersistenceGateway).findCategoryById(any(Integer.class));
+        verify(tournamentPersistenceGateway).saveTournament(any(Tournament.class));
+    }
+
+    @Test
+    void shouldCreatePaidTournament(){
+        Category category = Category.builder()
+                .id(1)
+                .name("Random category")
+                .capacity(20)
                 .build();
+
+        tournament.setFree(false);
 
         when(categoryPersistenceGateway.findCategoryById(any(Integer.class))).thenReturn(Mono.just(category));
         when(tournamentPersistenceGateway.saveTournament(any(Tournament.class))).thenReturn(Mono.just(tournament));
@@ -57,12 +91,25 @@ class TournamentUseCaseTest {
     }
 
     @Test
-    void createTournamentShouldThrowBusinessExceptionWhenCategoryNotFound(){
-        Tournament tournament = Tournament.builder()
-                .name("Random tournament")
-                .categoryId(1)
-                .build();
+    void createFreeTournamentShouldThrowBusinessExceptionWhenWhenUserHasReachLimit(){
+        when(tournamentPersistenceGateway.getTournamentsByUser(any(String.class))).thenReturn(Flux.just(tournament, tournament));
 
+        tournamentsUseCase.createTournament(tournament)
+                .as(StepVerifier::create)
+                .verifyErrorSatisfies(exception ->{
+                    assertTrue(exception instanceof BusinessException);
+                    assertEquals(BusinessErrorMessage.FREE_TOURNAMENTS_EXCEEDED.getMessage(),
+                            exception.getMessage());
+                });
+
+        verify(tournamentPersistenceGateway).getTournamentsByUser(any(String.class));
+        verify(tournamentPersistenceGateway, never()).saveTournament(any(Tournament.class));
+    }
+
+
+    @Test
+    void createTournamentShouldThrowBusinessExceptionWhenCategoryNotFound(){
+        when(tournamentPersistenceGateway.getTournamentsByUser(any(String.class))).thenReturn(Flux.empty());
         when(categoryPersistenceGateway.findCategoryById(any(Integer.class))).thenReturn(Mono.empty());
 
         tournamentsUseCase.createTournament(tournament)
@@ -79,10 +126,6 @@ class TournamentUseCaseTest {
 
     @Test
     void shouldGetTournamentById(){
-        Tournament tournament = Tournament.builder()
-                .name("Random tournament")
-                .categoryId(1)
-                .build();
         when(tournamentPersistenceGateway.getTournamentById(any(Integer.class))).thenReturn(Mono.just(tournament));
 
         tournamentsUseCase.getTournamentById(1)
@@ -131,5 +174,21 @@ class TournamentUseCaseTest {
                 .verifyComplete();
 
         verify(tournamentPersistenceGateway).getTournamentsByUser(userId);
+    }
+
+    @Test
+    void shouldUpdateTournamentRemainingCapacity(){
+        tournament.setRemainingCapacity(20);
+        when(tournamentPersistenceGateway.saveTournament(any(Tournament.class))).thenReturn(Mono.just(tournament));
+
+        tournamentsUseCase.updateRemainingCapacity(tournament)
+                .as(StepVerifier::create)
+                .assertNext(updatedTournament ->{
+                    assertNotNull(updatedTournament);
+                    assertNotNull(updatedTournament.getRemainingCapacity());
+                    assertEquals(19, updatedTournament.getRemainingCapacity());
+                }).verifyComplete();
+
+        verify(tournamentPersistenceGateway).saveTournament(any(Tournament.class));
     }
 }

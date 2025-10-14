@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class TicketEntity {
 
     @Id
-    private Long id;
+    private Integer id;
     @Column("user_id")
     private String userId;
     @Column("tournament_id")

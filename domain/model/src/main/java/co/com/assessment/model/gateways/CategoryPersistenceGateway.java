@@ -1,6 +1,6 @@
-package co.com.assessment.model.tournament.gateways;
+package co.com.assessment.model.gateways;
 
-import co.com.assessment.model.tournament.Category;
+import co.com.assessment.model.Category;
 import reactor.core.publisher.Mono;
 
 public interface CategoryPersistenceGateway {

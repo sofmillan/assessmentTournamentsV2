@@ -1,11 +1,11 @@
 package co.com.assessment.usecase.tournaments;
 
-import co.com.assessment.model.tournament.PurchaseDetails;
-import co.com.assessment.model.tournament.Ticket;
-import co.com.assessment.model.tournament.exception.BusinessErrorMessage;
-import co.com.assessment.model.tournament.exception.BusinessException;
-import co.com.assessment.model.tournament.gateways.PaymentGateway;
-import co.com.assessment.model.tournament.gateways.TicketPersistenceGateway;
+import co.com.assessment.model.PurchaseDetails;
+import co.com.assessment.model.Ticket;
+import co.com.assessment.model.exception.BusinessErrorMessage;
+import co.com.assessment.model.exception.BusinessException;
+import co.com.assessment.model.gateways.PaymentGateway;
+import co.com.assessment.model.gateways.TicketPersistenceGateway;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;

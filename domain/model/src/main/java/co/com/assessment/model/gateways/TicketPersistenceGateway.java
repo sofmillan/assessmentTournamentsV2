@@ -1,6 +1,6 @@
-package co.com.assessment.model.tournament.gateways;
+package co.com.assessment.model.gateways;
 
-import co.com.assessment.model.tournament.Ticket;
+import co.com.assessment.model.Ticket;
 import reactor.core.publisher.Mono;
 
 public interface TicketPersistenceGateway {

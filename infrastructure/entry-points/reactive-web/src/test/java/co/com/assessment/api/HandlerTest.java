@@ -4,7 +4,7 @@ import co.com.assessment.api.dto.request.TournamentRqDto;
 import co.com.assessment.api.dto.response.DetailedTournamentRsDto;
 import co.com.assessment.api.dto.response.TournamentRsDto;
 import co.com.assessment.api.validation.ObjectValidator;
-import co.com.assessment.model.tournament.Tournament;
+import co.com.assessment.model.Tournament;
 import co.com.assessment.tokenresolver.JwtResolver;
 import co.com.assessment.usecase.tournaments.TournamentsUseCase;
 import org.junit.jupiter.api.BeforeEach;

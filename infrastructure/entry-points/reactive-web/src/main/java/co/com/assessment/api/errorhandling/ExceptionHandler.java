@@ -1,9 +1,9 @@
 package co.com.assessment.api.errorhandling;
 
 import co.com.assessment.api.validation.ObjectValidationException;
-import co.com.assessment.model.tournament.exception.BusinessException;
-import co.com.assessment.model.tournament.exception.SecurityException;
-import co.com.assessment.model.tournament.exception.TechnicalException;
+import co.com.assessment.model.exception.BusinessException;
+import co.com.assessment.model.exception.SecurityException;
+import co.com.assessment.model.exception.TechnicalException;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;

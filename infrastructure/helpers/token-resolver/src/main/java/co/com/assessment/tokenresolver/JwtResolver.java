@@ -1,14 +1,13 @@
 package co.com.assessment.tokenresolver;
 
-import co.com.assessment.model.tournament.exception.SecurityErrorMessage;
-import co.com.assessment.model.tournament.exception.SecurityException;
-import co.com.assessment.model.tournament.exception.TechnicalErrorMessage;
-import co.com.assessment.model.tournament.exception.TechnicalException;
+import co.com.assessment.model.exception.SecurityErrorMessage;
+import co.com.assessment.model.exception.SecurityException;
+import co.com.assessment.model.exception.TechnicalErrorMessage;
+import co.com.assessment.model.exception.TechnicalException;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
 import com.nimbusds.jose.proc.SecurityContext;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

@@ -1,6 +1,6 @@
-package co.com.assessment.model.tournament.gateways;
+package co.com.assessment.model.gateways;
 
-import co.com.assessment.model.tournament.Tournament;
+import co.com.assessment.model.Tournament;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

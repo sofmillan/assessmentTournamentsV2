@@ -1,10 +1,10 @@
 package co.com.assessment.api.exception;
 
 import co.com.assessment.api.errorhandling.ErrorResponseBuilder;
-import co.com.assessment.model.tournament.exception.BusinessErrorMessage;
-import co.com.assessment.model.tournament.exception.BusinessException;
-import co.com.assessment.model.tournament.exception.SecurityErrorMessage;
-import co.com.assessment.model.tournament.exception.SecurityException;
+import co.com.assessment.model.exception.BusinessErrorMessage;
+import co.com.assessment.model.exception.BusinessException;
+import co.com.assessment.model.exception.SecurityErrorMessage;
+import co.com.assessment.model.exception.SecurityException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.reactive.function.server.MockServerRequest;

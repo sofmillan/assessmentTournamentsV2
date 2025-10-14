@@ -1,6 +1,6 @@
 package co.com.assessment.r2dbc;
 
-import co.com.assessment.model.tournament.Tournament;
+import co.com.assessment.model.Tournament;
 import co.com.assessment.r2dbc.entity.TournamentEntity;
 import co.com.assessment.r2dbc.repository.TournamentRepository;
 import org.junit.jupiter.api.Assertions;
@@ -68,7 +68,7 @@ class TournamentPersistenceAdapterTest {
         when(tournamentRepository.findById(1)).thenReturn(Mono.just(tournamentEntity));
         when(objectMapper.map(tournamentEntity, Tournament.class)).thenReturn(tournament);
 
-        tournamentPersistenceAdapter.findById(1)
+        tournamentPersistenceAdapter.getTournamentById(1)
                 .as(StepVerifier::create)
                 .assertNext(Assertions::assertNotNull)
                 .verifyComplete();

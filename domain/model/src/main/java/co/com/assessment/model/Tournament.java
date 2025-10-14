@@ -1,4 +1,4 @@
-package co.com.assessment.model.tournament;
+package co.com.assessment.model;
 import lombok.*;
 
 import java.time.LocalDate;

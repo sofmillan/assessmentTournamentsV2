@@ -1,4 +1,4 @@
-package co.com.assessment.model.tournament.exception;
+package co.com.assessment.model.exception;
 
 
 import lombok.AllArgsConstructor;

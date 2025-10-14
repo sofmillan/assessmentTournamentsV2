@@ -1,4 +1,4 @@
-package co.com.assessment.model.tournament;
+package co.com.assessment.model;
 
 import lombok.*;
 
@@ -22,9 +22,4 @@ public class Confirmation {
         private Double amountPaid;
         private String paymentMethod;
     }
-
-    public boolean isSuccessful() {
-        return "SUCCESS".equalsIgnoreCase(status);
-    }
-
 }

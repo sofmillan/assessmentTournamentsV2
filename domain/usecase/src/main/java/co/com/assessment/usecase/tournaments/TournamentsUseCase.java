@@ -1,10 +1,10 @@
 package co.com.assessment.usecase.tournaments;
 
-import co.com.assessment.model.tournament.Tournament;
-import co.com.assessment.model.tournament.exception.BusinessErrorMessage;
-import co.com.assessment.model.tournament.exception.BusinessException;
-import co.com.assessment.model.tournament.gateways.CategoryPersistenceGateway;
-import co.com.assessment.model.tournament.gateways.TournamentPersistenceGateway;
+import co.com.assessment.model.Tournament;
+import co.com.assessment.model.exception.BusinessErrorMessage;
+import co.com.assessment.model.exception.BusinessException;
+import co.com.assessment.model.gateways.CategoryPersistenceGateway;
+import co.com.assessment.model.gateways.TournamentPersistenceGateway;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 public class TournamentsUseCase {
     private final TournamentPersistenceGateway tournamentPersistenceGateway;
     private final CategoryPersistenceGateway categoryPersistenceGateway;
+    private final static Long FREE_TOURNAMENT_LIMIT = 2L;
     public Mono<Tournament> createTournament(Tournament tournament){
         Mono<Tournament> validTournamentCreation = tournament.isFree()
                 ? checkFreeTournamentLimit(tournament)
@@ -53,7 +54,7 @@ public class TournamentsUseCase {
                 .filter(Tournament::isFree)
                 .count()
                 .flatMap(count -> {
-                    if (count >= 2L) {
+                    if (count >= FREE_TOURNAMENT_LIMIT) {
                         throw new BusinessException(BusinessErrorMessage.FREE_TOURNAMENTS_EXCEEDED);
                     }
                     return Mono.just(tournament);

@@ -1,7 +1,7 @@
 package co.com.assessment.r2dbc;
 
-import co.com.assessment.model.tournament.Tournament;
-import co.com.assessment.model.tournament.gateways.TournamentPersistenceGateway;
+import co.com.assessment.model.Tournament;
+import co.com.assessment.model.gateways.TournamentPersistenceGateway;
 import co.com.assessment.r2dbc.entity.TournamentEntity;
 import co.com.assessment.r2dbc.helper.ReactiveAdapterOperations;
 import co.com.assessment.r2dbc.repository.TournamentRepository;
