@@ -12,7 +12,7 @@ import co.com.assessment.model.Tournament;
 import co.com.assessment.model.exception.BusinessErrorMessage;
 import co.com.assessment.model.exception.BusinessException;
 import co.com.assessment.tokenresolver.JwtResolver;
-import co.com.assessment.usecase.tournaments.TicketsUseCase;
+import co.com.assessment.usecase.tournaments.TicketUseCase;
 import co.com.assessment.usecase.tournaments.TournamentsUseCase;
 import org.reactivecommons.utils.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class Handler {
     private final ObjectMapper objectMapper;
     private final JwtResolver jwtResolver;
 
-    private final TicketsUseCase ticketsUseCase;
+    private final TicketUseCase ticketUseCase;
 
 
     public Mono<ServerResponse> listenPOSTCreateTournament(ServerRequest serverRequest) {
@@ -80,7 +80,7 @@ public class Handler {
                 .switchIfEmpty(Mono.error(() -> new BusinessException(BusinessErrorMessage.INVALID_REQUEST)))
                 .doOnNext(objectValidator::validate)
                 .map(rqDto -> objectMapper.map(rqDto, PurchaseDetails.class))
-                .flatMap(details -> ticketsUseCase.purchaseTicket(details, userId))
+                .flatMap(details -> ticketUseCase.purchaseTicket(details, userId))
                 .map(ticket -> objectMapper.map(ticket, TicketRsDto.class))
                 .flatMap(this::buildResponse);
     }

@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 public class TournamentsUseCase {
     private final TournamentPersistenceGateway tournamentPersistenceGateway;
     private final CategoryPersistenceGateway categoryPersistenceGateway;
-    private final static Long FREE_TOURNAMENT_LIMIT = 2L;
+    private static final Long FREE_TOURNAMENT_LIMIT = 2L;
     public Mono<Tournament> createTournament(Tournament tournament){
         Mono<Tournament> validTournamentCreation = tournament.isFree()
                 ? checkFreeTournamentLimit(tournament)

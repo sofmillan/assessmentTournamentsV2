@@ -30,18 +30,12 @@ import org.slf4j.LoggerFactory;
 @Component
 public class JwtResolver {
     private static final Logger log = LoggerFactory.getLogger(JwtResolver.class);
-    private final String issuer;
-
-    private final String jwksUrlString;
-
     private final JWTProcessor<SecurityContext> jwtProcessor;
 
     public JwtResolver(
             @Value("${aws.cognito.issuer}") String issuer,
             @Value("${aws.cognito.jwksUrl}") String jwksUrlString
     ) throws MalformedURLException, URISyntaxException {
-        this.issuer = issuer;
-        this.jwksUrlString = jwksUrlString;
 
         ConfigurableJWTProcessor<com.nimbusds.jose.proc.SecurityContext> processor =
                 new DefaultJWTProcessor<>();

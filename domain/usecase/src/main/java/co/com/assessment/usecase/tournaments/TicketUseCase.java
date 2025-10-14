@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-public class TicketsUseCase {
+public class TicketUseCase {
     private final TournamentsUseCase tournamentUseCase;
     private final PaymentGateway paymentGateway;
     private final TicketPersistenceGateway ticketPersistenceGateway;
