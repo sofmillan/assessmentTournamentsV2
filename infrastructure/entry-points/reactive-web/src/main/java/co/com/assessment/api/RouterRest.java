@@ -15,7 +15,7 @@ public class RouterRest {
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST("/events/tournaments"), handler::listenPOSTCreateTournament)
                 .andRoute(GET("/events/tournaments/{id}"), handler::listenGETFindTournamentById)
-                .and(route(POST("/events/tickets"), handler::listenGETPurchaseTicket))
+                .and(route(POST("/events/tickets"), handler::listenPOSTPurchaseTicket))
                 .and(route(GET("/events/tournaments"), handler::listenGETAllTournaments));
     }
 }

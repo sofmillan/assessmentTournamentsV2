@@ -73,7 +73,7 @@ public class Handler {
                 .flatMap(this::buildResponse);
     }
 
-    public Mono<ServerResponse> listenGETPurchaseTicket(ServerRequest serverRequest) {
+    public Mono<ServerResponse> listenPOSTPurchaseTicket(ServerRequest serverRequest) {
         String userId = this.getUser(serverRequest);
 
         return serverRequest.bodyToMono(PurchaseTicketRqDto.class)

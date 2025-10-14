@@ -1,11 +1,16 @@
 package co.com.assessment.api;
 
+import co.com.assessment.api.dto.request.PurchaseTicketRqDto;
 import co.com.assessment.api.dto.request.TournamentRqDto;
 import co.com.assessment.api.dto.response.DetailedTournamentRsDto;
+import co.com.assessment.api.dto.response.TicketRsDto;
 import co.com.assessment.api.dto.response.TournamentRsDto;
 import co.com.assessment.api.validation.ObjectValidator;
+import co.com.assessment.model.PurchaseDetails;
+import co.com.assessment.model.Ticket;
 import co.com.assessment.model.Tournament;
 import co.com.assessment.tokenresolver.JwtResolver;
+import co.com.assessment.usecase.tournaments.TicketUseCase;
 import co.com.assessment.usecase.tournaments.TournamentsUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +37,8 @@ class HandlerTest {
     @Mock
     private TournamentsUseCase tournamentsUseCase;
     @Mock
+    private TicketUseCase ticketUseCase;
+    @Mock
     private ObjectMapper objectMapper;
     @Mock
     private JwtResolver jwtResolver;
@@ -39,6 +46,7 @@ class HandlerTest {
     private Handler handler;
 
     private Tournament tournament;
+    private String userId;
     @BeforeEach
     void setUp(){
         tournament = Tournament.builder()
@@ -51,6 +59,7 @@ class HandlerTest {
                 .startDate(LocalDate.of(2026,1,1))
                 .endDate(LocalDate.of(2026,1,8))
                 .build();
+        userId = "f33f9324-ed41-4514-aeb3-6971742bd763";
     }
 
     @Test
@@ -75,7 +84,7 @@ class HandlerTest {
         when(objectMapper.map(rqDto, Tournament.class)).thenReturn(tournament);
         when(tournamentsUseCase.createTournament(tournament)).thenReturn(Mono.just(tournament));
         when(objectMapper.map(tournament, TournamentRsDto.class)).thenReturn(rsDto);
-        when(jwtResolver.validateAndExtractSub(any(String.class))).thenReturn("f33f9324-ed41-4514-aeb3-6971742bd763");
+        when(jwtResolver.validateAndExtractSub(any(String.class))).thenReturn(userId);
 
         ServerRequest request = MockServerRequest.builder()
                 .header("Authorization", "Bearer mock-access-token")
@@ -141,7 +150,6 @@ class HandlerTest {
 
     @Test
     void listenGETAllTournamentsWhenCreatedByMeTrue(){
-        String userId = "f33f9324-ed41-4514-aeb3-6971742bd763";
         Flux<Tournament> retrievedTournaments = Flux.just(tournament, tournament);
 
         TournamentRsDto rsDto = TournamentRsDto.builder()
@@ -165,6 +173,40 @@ class HandlerTest {
                 .verifyComplete();
 
         verify(tournamentsUseCase).getTournamentsByUser(userId);
+    }
+
+    @Test
+    void listenPOSTPurchaseTicketWhenValidRequest(){
+        PurchaseTicketRqDto rqDto = PurchaseTicketRqDto.builder()
+                .tournamentId(1)
+                .build();
+        TicketRsDto rsDto = TicketRsDto.builder()
+                .code("2af43a2")
+                .totalPrice(0.0)
+                .tournamentId(1)
+                .build();
+
+        PurchaseDetails purchaseDetails = PurchaseDetails.builder()
+                .tournamentId(1)
+                .build();
+        Ticket ticket = Ticket.builder().build();
+
+        when(jwtResolver.validateAndExtractSub(any(String.class))).thenReturn(userId);
+        when(objectMapper.map(rqDto, PurchaseDetails.class)).thenReturn(purchaseDetails);
+        when(ticketUseCase.purchaseTicket(purchaseDetails, userId)).thenReturn(Mono.just(ticket));
+        when(objectMapper.map(ticket, TicketRsDto.class)).thenReturn(rsDto);
+
+        ServerRequest request = MockServerRequest.builder()
+                .header("Authorization", "Bearer mock-access-token")
+                .body(Mono.just(rqDto));
+
+        handler.listenPOSTPurchaseTicket(request)
+                .as(StepVerifier::create)
+                .expectNextMatches(serverResponse -> serverResponse.statusCode().is2xxSuccessful())
+                .verifyComplete();
+
+        verify(objectValidator).validate(rqDto);
+        verify(ticketUseCase).purchaseTicket(purchaseDetails,userId);
     }
 
 }

@@ -1,9 +1,7 @@
 package co.com.assessment.api.exception;
 
 import co.com.assessment.api.errorhandling.ErrorResponseBuilder;
-import co.com.assessment.model.exception.BusinessErrorMessage;
-import co.com.assessment.model.exception.BusinessException;
-import co.com.assessment.model.exception.SecurityErrorMessage;
+import co.com.assessment.model.exception.*;
 import co.com.assessment.model.exception.SecurityException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,6 +49,23 @@ class ErrorResponseBuilderTest {
                     assertEquals(securityExceptionMessage.getMessage(), errorModel.getErrorMessages().get(0));
                     assertEquals(securityExceptionMessage.getStatus(), errorModel.getStatus());
                     assertEquals(securityExceptionMessage.getStatusCode(), errorModel.getStatusCode());
+                    assertNotNull(errorModel.getDateTime());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void buildErrorResponseShouldReturnErrorModelForTechnicalException() {
+        TechnicalErrorMessage technicalErrorMessage = TechnicalErrorMessage.TECHNICAL_ERROR;
+        TechnicalException ex = new TechnicalException(technicalErrorMessage);
+        ServerRequest request = MockServerRequest.builder().build();
+
+        errorResponseBuilder.buildErrorResponse(ex, request)
+                .as(StepVerifier::create)
+                .assertNext(errorModel -> {
+                    assertEquals(technicalErrorMessage.getMessage(), errorModel.getErrorMessages().get(0));
+                    assertEquals(technicalErrorMessage.getStatus(), errorModel.getStatus());
+                    assertEquals(technicalErrorMessage.getStatusCode(), errorModel.getStatusCode());
                     assertNotNull(errorModel.getDateTime());
                 })
                 .verifyComplete();

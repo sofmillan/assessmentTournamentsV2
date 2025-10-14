@@ -4,6 +4,8 @@ import co.com.assessment.model.Confirmation;
 import co.com.assessment.model.PurchaseDetails;
 import co.com.assessment.model.Ticket;
 import co.com.assessment.model.Tournament;
+import co.com.assessment.model.exception.BusinessErrorMessage;
+import co.com.assessment.model.exception.BusinessException;
 import co.com.assessment.model.gateways.PaymentGateway;
 import co.com.assessment.model.gateways.TicketPersistenceGateway;
 import org.junit.jupiter.api.BeforeEach;
@@ -123,5 +125,30 @@ class TicketUseCaseTest {
         verify(tournamentUseCase).getTournamentById(any(Integer.class));
         verify(ticketPersistenceGateway).saveTicket(any(Ticket.class));
         verify(paymentGateway).processPayment(any(PurchaseDetails.class));
+    }
+
+    @Test
+    void purchaseTicketShouldThrowBusinessExceptionWhenTournamentSoldOut(){
+        Tournament tournament = Tournament.builder()
+                .id(1)
+                .free(false)
+                .ticketPrice(10.0)
+                .remainingCapacity(0)
+                .build();
+
+        when(tournamentUseCase.getTournamentById(1)).thenReturn(Mono.just(tournament));
+
+        ticketUseCase.purchaseTicket(purchaseDetails, userId)
+                .as(StepVerifier::create)
+                .verifyErrorSatisfies(exception ->{
+                    assertTrue(exception instanceof BusinessException);
+                    assertEquals(BusinessErrorMessage.TOURNAMENT_SOLD_OUT.getMessage(),
+                            exception.getMessage());
+                });
+
+        verify(tournamentUseCase).getTournamentById(any(Integer.class));
+        verify(tournamentUseCase,never()).updateRemainingCapacity(any(Tournament.class));
+        verify(ticketPersistenceGateway,never()).saveTicket(any(Ticket.class));
+        verify(paymentGateway,never()).processPayment(any(PurchaseDetails.class));
     }
 }
