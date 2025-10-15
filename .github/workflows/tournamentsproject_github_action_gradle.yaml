@@ -5,6 +5,18 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
+env:
+  ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+  SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  ISSUER: ${{ secrets.ISSUER }}
+  JWKS_URL: ${{ secrets.JWKS_URL }}
+  PAYMENT_API_URL: ${{ secrets.PAYMENT_API_URL }}
+  ECR_REPOSITORY_LINK: ${{ secrets.ECR_REPOSITORY_LINK }}
+  REGION: ${{ secrets.REGION }}
+  POSTMAN_APIKEY: ${{ secrets.POSTMAN_APIKEY }}
+  DB_USERNAME: ${{ secrets.DB_USERNAME }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_URL: ${{ secrets.DB_URL }}
 jobs:
   build:
     name: Build and analyze
@@ -38,3 +50,80 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew build sonar --info
+      - name: Stage Artifact Files
+        run: |
+          mkdir -p artifact-staging
+          cp applications/app-service/build/libs/TournamentsProject.jar artifact-staging/
+          cp deployment/Dockerfile artifact-staging/
+      - name: Upload files
+        uses: actions/upload-artifact@v4
+        with:
+          name: Package
+          path: artifact-staging/
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Package
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
+        with:
+          aws-access-key-id: ${{ env.ACCESS_KEY }}
+          aws-secret-access-key: ${{ env.SECRET_KEY }}
+          aws-region: ${{ env.REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        run: |
+          docker build -t ${{env.ECR_REPOSITORY_LINK}}:1.0.0 .
+          docker push ${{ env.ECR_REPOSITORY_LINK }}:1.0.0
+          echo "image=${{ env.ECR_REPOSITORY_LINK }}:1.0.0" >> $GITHUB_OUTPUT
+
+  deploy-container:
+    name: Run Container on EC2
+    runs-on: self-hosted
+    needs: deploy
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
+        with:
+          aws-access-key-id: ${{ env.ACCESS_KEY }}
+          aws-secret-access-key: ${{ env.SECRET_KEY }}
+          aws-region: ${{ env.REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
+      - name: Run Container Deployment
+        run: |
+          IMAGE_URI="${{ env.ECR_REPOSITORY_LINK }}:1.0.0"
+
+          echo "Stopping and removing existing container (if any)..."
+          docker stop events_container || true
+          docker rm events_container || true
+
+          docker pull $IMAGE_URI
+
+          echo "Running the new container..."
+          docker run -d \
+              --name events_container \
+              -p 8080:8080 \
+              -e ISSUER="$ISSUER" \
+              -e JWKS_URL="$JWKS_URL" \
+              -e PAYMENT_API_URL="$PAYMENT_API_URL" \
+              -e DB_USERNAME="$DB_USERNAME" \
+              -e DB_URL="$DB_URL" \
+              -e DB_PASSWORD="$DB_PASSWORD" \
+              -e POSTMAN_APIKEY="$POSTMAN_APIKEY" \
+            $IMAGE_URI
+
+          echo "Deployment complete."        
