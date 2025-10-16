@@ -14,8 +14,9 @@ public class RouterRest {
     @Bean
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST("/events/tournaments"), handler::listenPOSTCreateTournament)
-                .andRoute(GET("/events/tournaments/{id}"), handler::listenGETFindTournamentById)
-                .and(route(POST("/events/tickets"), handler::listenPOSTPurchaseTicket))
-                .and(route(GET("/events/tournaments"), handler::listenGETAllTournaments));
+                .andRoute(GET("/events/tournaments/{id}"), handler::listenGETtournamentById)
+                .and(route(GET("/events/tournaments/{id}/metrics"), handler::listenGETtournamentMetrics))
+                .and(route(GET("/events/tournaments"), handler::listenGETAllTournaments))
+                .and(route(POST("/events/tickets"), handler::listenPOSTPurchaseTicket));
     }
 }

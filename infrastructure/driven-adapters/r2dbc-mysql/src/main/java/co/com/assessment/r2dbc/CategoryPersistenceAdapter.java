@@ -21,7 +21,7 @@ public class CategoryPersistenceAdapter  extends ReactiveAdapterOperations<
     }
 
     @Override
-    public Mono<Category> findCategoryById(Integer id) {
+    public Mono<Category> getCategoryById(Integer id) {
         return this.findById(id);
     }
 }

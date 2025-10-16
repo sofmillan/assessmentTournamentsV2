@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 public class TicketUseCase {
-    private final TournamentsUseCase tournamentUseCase;
+    private final TournamentUseCase tournamentUseCase;
     private final PaymentGateway paymentGateway;
     private final TicketPersistenceGateway ticketPersistenceGateway;
     public static final Double PLATFORM_FEE = 0.05;
@@ -44,8 +44,6 @@ public class TicketUseCase {
                                         .transactionId(transactionId)
                                         .totalPrice(tournament.getTicketPrice() == 0 ? tournament.getTicketPrice() : purchaseDetails.getAmount())
                                         .build();
-
-                                tournament.setRemainingCapacity(tournament.getRemainingCapacity()-1);
 
                                 return ticketPersistenceGateway.saveTicket(ticket)
                                         .zipWith(tournamentUseCase.updateRemainingCapacity(tournament));

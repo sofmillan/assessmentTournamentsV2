@@ -4,14 +4,16 @@ import co.com.assessment.api.dto.request.PurchaseTicketRqDto;
 import co.com.assessment.api.dto.request.TournamentRqDto;
 import co.com.assessment.api.dto.response.DetailedTournamentRsDto;
 import co.com.assessment.api.dto.response.TicketRsDto;
+import co.com.assessment.api.dto.response.TournamentMetricsRsDto;
 import co.com.assessment.api.dto.response.TournamentRsDto;
 import co.com.assessment.api.validation.ObjectValidator;
 import co.com.assessment.model.PurchaseDetails;
 import co.com.assessment.model.Ticket;
 import co.com.assessment.model.Tournament;
+import co.com.assessment.model.TournamentMetrics;
 import co.com.assessment.tokenresolver.JwtResolver;
 import co.com.assessment.usecase.tournaments.TicketUseCase;
-import co.com.assessment.usecase.tournaments.TournamentsUseCase;
+import co.com.assessment.usecase.tournaments.TournamentUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +37,7 @@ class HandlerTest {
     @Mock
     private ObjectValidator objectValidator;
     @Mock
-    private TournamentsUseCase tournamentsUseCase;
+    private TournamentUseCase tournamentUseCase;
     @Mock
     private TicketUseCase ticketUseCase;
     @Mock
@@ -82,7 +84,7 @@ class HandlerTest {
                 .build();
 
         when(objectMapper.map(rqDto, Tournament.class)).thenReturn(tournament);
-        when(tournamentsUseCase.createTournament(tournament)).thenReturn(Mono.just(tournament));
+        when(tournamentUseCase.createTournament(tournament)).thenReturn(Mono.just(tournament));
         when(objectMapper.map(tournament, TournamentRsDto.class)).thenReturn(rsDto);
         when(jwtResolver.validateAndExtractSub(any(String.class))).thenReturn(userId);
 
@@ -96,7 +98,7 @@ class HandlerTest {
                 .verifyComplete();
 
         verify(objectValidator).validate(rqDto);
-        verify(tournamentsUseCase).createTournament(tournament);
+        verify(tournamentUseCase).createTournament(tournament);
     }
 
     @Test
@@ -109,18 +111,18 @@ class HandlerTest {
                 .endDate(LocalDate.of(2026,1,8))
                 .build();
 
-        when(tournamentsUseCase.getTournamentById(1)).thenReturn(Mono.just(tournament));
+        when(tournamentUseCase.getTournamentById(1)).thenReturn(Mono.just(tournament));
         when(objectMapper.map(tournament, DetailedTournamentRsDto.class)).thenReturn(rsDto);
 
         ServerRequest request = MockServerRequest.builder()
                 .pathVariable("id","1").build();
 
-        handler.listenGETFindTournamentById(request)
+        handler.listenGETtournamentById(request)
                 .as(StepVerifier::create)
                 .expectNextMatches(serverResponse -> serverResponse.statusCode().is2xxSuccessful())
                 .verifyComplete();
 
-        verify(tournamentsUseCase).getTournamentById(any(Integer.class));
+        verify(tournamentUseCase).getTournamentById(any(Integer.class));
     }
 
     @Test
@@ -134,7 +136,7 @@ class HandlerTest {
                 .endDate(LocalDate.of(2026,1,8))
                 .build();
 
-        when(tournamentsUseCase.getAllTournaments()).thenReturn(retrievedTournaments);
+        when(tournamentUseCase.getAllTournaments()).thenReturn(retrievedTournaments);
         when(objectMapper.map(tournament, TournamentRsDto.class)).thenReturn(rsDto);
 
         ServerRequest request = MockServerRequest.builder()
@@ -145,7 +147,7 @@ class HandlerTest {
                 .expectNextMatches(serverResponse -> serverResponse.statusCode().is2xxSuccessful())
                 .verifyComplete();
 
-        verify(tournamentsUseCase).getAllTournaments();
+        verify(tournamentUseCase).getAllTournaments();
     }
 
     @Test
@@ -160,7 +162,7 @@ class HandlerTest {
                 .build();
 
         when(jwtResolver.validateAndExtractSub(any(String.class))).thenReturn(userId);
-        when(tournamentsUseCase.getTournamentsByUser(userId)).thenReturn(retrievedTournaments);
+        when(tournamentUseCase.getTournamentsByUser(userId)).thenReturn(retrievedTournaments);
         when(objectMapper.map(tournament, TournamentRsDto.class)).thenReturn(rsDto);
 
         ServerRequest request = MockServerRequest.builder()
@@ -172,7 +174,7 @@ class HandlerTest {
                 .expectNextMatches(serverResponse -> serverResponse.statusCode().is2xxSuccessful())
                 .verifyComplete();
 
-        verify(tournamentsUseCase).getTournamentsByUser(userId);
+        verify(tournamentUseCase).getTournamentsByUser(userId);
     }
 
     @Test
@@ -207,6 +209,35 @@ class HandlerTest {
 
         verify(objectValidator).validate(rqDto);
         verify(ticketUseCase).purchaseTicket(purchaseDetails,userId);
+    }
+
+    @Test
+    void listenGETtournamentMetrics(){
+        TournamentMetricsRsDto metricsRsDto = TournamentMetricsRsDto.builder()
+                .numberSoldTickets(10)
+                .remainingCapacity(10)
+                .revenue(100.0)
+                .totalCapacity(20)
+                .build();
+        TournamentMetrics metrics = TournamentMetrics.builder()
+                .numberSoldTickets(10)
+                .remainingCapacity(10)
+                .revenue(100.0)
+                .totalCapacity(20)
+                .build();
+
+        when(tournamentUseCase.getTournamentMetrics(1)).thenReturn(Mono.just(metrics));
+        when(objectMapper.map(metrics, TournamentMetricsRsDto.class)).thenReturn(metricsRsDto);
+
+        ServerRequest request = MockServerRequest.builder()
+                .pathVariable("id","1").build();
+
+        handler.listenGETtournamentMetrics(request)
+                .as(StepVerifier::create)
+                .expectNextMatches(serverResponse -> serverResponse.statusCode().is2xxSuccessful())
+                .verifyComplete();
+
+        verify(tournamentUseCase).getTournamentMetrics(any(Integer.class));
     }
 
 }

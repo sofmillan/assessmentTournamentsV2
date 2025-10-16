@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TicketUseCaseTest {
     @Mock
-    private TournamentsUseCase tournamentUseCase;
+    private TournamentUseCase tournamentUseCase;
     @Mock
     private PaymentGateway paymentGateway;
     @Mock

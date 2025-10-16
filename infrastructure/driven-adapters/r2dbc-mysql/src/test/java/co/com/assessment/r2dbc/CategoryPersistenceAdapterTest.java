@@ -40,7 +40,7 @@ class CategoryPersistenceAdapterTest {
         when(categoryRepository.findById(1)).thenReturn(Mono.just(categoryEntity));
         when(objectMapper.map(categoryEntity, Category.class)).thenReturn(category);
 
-        categoryPersistenceAdapter.findCategoryById(1)
+        categoryPersistenceAdapter.getCategoryById(1)
                 .as(StepVerifier::create)
                 .assertNext(Assertions::assertNotNull)
                 .verifyComplete();

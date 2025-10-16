@@ -2,10 +2,7 @@ package co.com.assessment.api;
 
 import co.com.assessment.api.dto.request.PurchaseTicketRqDto;
 import co.com.assessment.api.dto.request.TournamentRqDto;
-import co.com.assessment.api.dto.response.DetailedTournamentRsDto;
-import co.com.assessment.api.dto.response.TicketRsDto;
-import co.com.assessment.api.dto.response.TournamentListRsDto;
-import co.com.assessment.api.dto.response.TournamentRsDto;
+import co.com.assessment.api.dto.response.*;
 import co.com.assessment.api.validation.ObjectValidator;
 import co.com.assessment.model.PurchaseDetails;
 import co.com.assessment.model.Tournament;
@@ -13,7 +10,7 @@ import co.com.assessment.model.exception.BusinessErrorMessage;
 import co.com.assessment.model.exception.BusinessException;
 import co.com.assessment.tokenresolver.JwtResolver;
 import co.com.assessment.usecase.tournaments.TicketUseCase;
-import co.com.assessment.usecase.tournaments.TournamentsUseCase;
+import co.com.assessment.usecase.tournaments.TournamentUseCase;
 import org.reactivecommons.utils.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -25,7 +22,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class Handler {
     private final ObjectValidator objectValidator;
-    private final TournamentsUseCase tournamentsUseCase;
+    private final TournamentUseCase tournamentUseCase;
     private final ObjectMapper objectMapper;
     private final JwtResolver jwtResolver;
 
@@ -43,14 +40,14 @@ public class Handler {
                     model.setUserId(userId);
                     return model;
                 })
-                .flatMap(tournamentsUseCase::createTournament)
+                .flatMap(tournamentUseCase::createTournament)
                 .map(tournament -> objectMapper.map(tournament, TournamentRsDto.class))
                 .flatMap(this::buildResponse);
     }
 
-    public Mono<ServerResponse> listenGETFindTournamentById(ServerRequest serverRequest) {
+    public Mono<ServerResponse> listenGETtournamentById(ServerRequest serverRequest) {
         Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
-        return tournamentsUseCase.getTournamentById(id)
+        return tournamentUseCase.getTournamentById(id)
                 .map(tournament -> objectMapper.map(tournament, DetailedTournamentRsDto.class))
                 .flatMap(this::buildResponse);
     }
@@ -63,9 +60,9 @@ public class Handler {
                 .flatMapMany(validatedRequest -> {
                     if (createdByMe) {
                         String userId = this.getUser(validatedRequest);
-                        return tournamentsUseCase.getTournamentsByUser(userId);
+                        return tournamentUseCase.getTournamentsByUser(userId);
                     } else {
-                        return tournamentsUseCase.getAllTournaments();
+                        return tournamentUseCase.getAllTournaments();
                     }})
                 .map(tournament -> objectMapper.map(tournament, TournamentRsDto.class))
                 .collectList()
@@ -82,6 +79,13 @@ public class Handler {
                 .map(rqDto -> objectMapper.map(rqDto, PurchaseDetails.class))
                 .flatMap(details -> ticketUseCase.purchaseTicket(details, userId))
                 .map(ticket -> objectMapper.map(ticket, TicketRsDto.class))
+                .flatMap(this::buildResponse);
+    }
+
+    public Mono<ServerResponse> listenGETtournamentMetrics(ServerRequest serverRequest){
+        Integer id = Integer.valueOf(serverRequest.pathVariable("id"));
+        return tournamentUseCase.getTournamentMetrics(id)
+                .map(tournamentMetrics -> objectMapper.map(tournamentMetrics, TournamentMetricsRsDto.class))
                 .flatMap(this::buildResponse);
     }
 

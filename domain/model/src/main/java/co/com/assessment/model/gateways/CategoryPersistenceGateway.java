@@ -4,5 +4,5 @@ import co.com.assessment.model.Category;
 import reactor.core.publisher.Mono;
 
 public interface CategoryPersistenceGateway {
-    Mono<Category> findCategoryById(Integer id);
+    Mono<Category> getCategoryById(Integer id);
 }

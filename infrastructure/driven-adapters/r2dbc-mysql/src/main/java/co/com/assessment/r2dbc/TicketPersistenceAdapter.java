@@ -7,6 +7,7 @@ import co.com.assessment.r2dbc.helper.ReactiveAdapterOperations;
 import co.com.assessment.r2dbc.repository.TicketRepository;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Repository
@@ -23,5 +24,10 @@ public class TicketPersistenceAdapter extends ReactiveAdapterOperations<
     @Override
     public Mono<Ticket> saveTicket(Ticket ticket) {
         return this.save(ticket);
+    }
+
+    @Override
+    public Flux<Ticket> getTicketsByTournamentId(Integer tournamentId) {
+        return repository.findByTournamentId(tournamentId).map(tournament -> mapper.map(tournament, Ticket.class));
     }
 }
