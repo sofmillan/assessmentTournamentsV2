@@ -8,9 +8,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum BusinessErrorMessage {
 
-    INVALID_REQUEST(400, "BAD REQUEST", "Body cannot be empty"),
-    CATEGORY_NOT_EXIST(404, "NOT FOUND", "Category does not exist"),
-    TOURNAMENT_NOT_EXIST(404, "NOT FOUND", "Tournament does not exist"),
+    INVALID_REQUEST(400, "Bad Request", "Body cannot be empty"),
+    MISSING_PAYMENT_INFORMATION(400, "Bad Request", "Missing payment information"),
+    CATEGORY_NOT_EXIST(404, "Not Found", "Category does not exist"),
+    TOURNAMENT_NOT_EXIST(404, "Not Found", "Tournament does not exist"),
     TOURNAMENT_SOLD_OUT(409, "Conflict", "This tournament has no available capacity"),
     FREE_TOURNAMENTS_EXCEEDED(409, "Conflict", "User cannot create more free tournaments");
     private final Integer statusCode;

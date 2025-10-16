@@ -21,14 +21,19 @@ public class TicketUseCase {
     public static final Double PLATFORM_FEE = 0.05;
 
     public Mono<Ticket> purchaseTicket(PurchaseDetails purchaseDetails, String userId){
+
         return tournamentUseCase.getTournamentById(purchaseDetails.getTournamentId())
                 .flatMap(tournament ->{
                     if(tournament.getRemainingCapacity()==0) throw new BusinessException(BusinessErrorMessage.TOURNAMENT_SOLD_OUT);
 
                     Mono<String> transactionIdMono;
+
                     if(tournament.isFree()){
                         transactionIdMono = Mono.just("");
                     }else{
+                        if(purchaseDetails.getCurrency() == null || purchaseDetails.getPaymentMethod() ==null){
+                            throw new BusinessException(BusinessErrorMessage.MISSING_PAYMENT_INFORMATION);
+                        }
                         purchaseDetails.setAmount(tournament.getTicketPrice() + (tournament.getTicketPrice() * PLATFORM_FEE));
                         transactionIdMono = paymentGateway.processPayment(purchaseDetails)
                                 .flatMap(confirmation -> Mono.just(confirmation.getTransactionDetails().getTransactionId()));

@@ -37,6 +37,8 @@ class TicketUseCaseTest {
 
     private PurchaseDetails purchaseDetails;
     private String userId;
+    private Ticket ticket;
+    private Tournament tournament;
 
     @BeforeEach
     void setUp(){
@@ -46,23 +48,25 @@ class TicketUseCaseTest {
                 .tournamentId(1)
                 .build();
         userId = "1db313d4-c7c3-4a4f-a68c-a388e9a26d70";
-    }
-
-    @Test
-    void shouldSaveTicketForFreeTournament(){
-        Tournament tournament = Tournament.builder()
+        tournament = Tournament.builder()
                 .id(1)
-                .free(true)
-                .ticketPrice(0.0)
+                .free(false)
+                .ticketPrice(10.0)
                 .remainingCapacity(2)
                 .build();
-        Ticket ticket = Ticket.builder()
+        ticket = Ticket.builder()
                 .code(UUID.randomUUID().toString().substring(0,6))
                 .tournamentId(tournament.getId())
                 .userId(userId)
                 .purchaseDate(LocalDateTime.now())
                 .totalPrice(0.0)
                 .build();
+    }
+
+    @Test
+    void shouldSaveTicketForFreeTournament(){
+        tournament.setFree(true);
+        tournament.setTicketPrice(0.0);
 
         when(tournamentUseCase.getTournamentById(1)).thenReturn(Mono.just(tournament));
         when(tournamentUseCase.updateRemainingCapacity(tournament)).thenReturn(Mono.just(tournament));
@@ -84,21 +88,6 @@ class TicketUseCaseTest {
 
     @Test
     void shouldSaveTicketForPaidTournament(){
-        Tournament tournament = Tournament.builder()
-                .id(1)
-                .free(false)
-                .ticketPrice(10.0)
-                .remainingCapacity(2)
-                .build();
-
-        Ticket ticket = Ticket.builder()
-                .code(UUID.randomUUID().toString().substring(0,6))
-                .tournamentId(tournament.getId())
-                .userId(userId)
-                .purchaseDate(LocalDateTime.now())
-                .totalPrice(10.5)
-                .build();
-
         Confirmation confirmation = Confirmation.builder()
                 .status("SUCCESS")
                 .transactionDetails(Confirmation.TransactionDetails.builder()
@@ -129,13 +118,7 @@ class TicketUseCaseTest {
 
     @Test
     void purchaseTicketShouldThrowBusinessExceptionWhenTournamentSoldOut(){
-        Tournament tournament = Tournament.builder()
-                .id(1)
-                .free(false)
-                .ticketPrice(10.0)
-                .remainingCapacity(0)
-                .build();
-
+        tournament.setRemainingCapacity(0);
         when(tournamentUseCase.getTournamentById(1)).thenReturn(Mono.just(tournament));
 
         ticketUseCase.purchaseTicket(purchaseDetails, userId)
@@ -151,4 +134,46 @@ class TicketUseCaseTest {
         verify(ticketPersistenceGateway,never()).saveTicket(any(Ticket.class));
         verify(paymentGateway,never()).processPayment(any(PurchaseDetails.class));
     }
+
+    @Test
+    void shouldThrowBusinessExceptionWhenPaymentMethodNullForPaidTournament(){
+        purchaseDetails.setPaymentMethod(null);
+
+        when(tournamentUseCase.getTournamentById(1)).thenReturn(Mono.just(tournament));
+
+        ticketUseCase.purchaseTicket(purchaseDetails, userId)
+                .as(StepVerifier::create)
+                .verifyErrorSatisfies(exception ->{
+                    assertTrue(exception instanceof BusinessException);
+                    assertEquals(BusinessErrorMessage.MISSING_PAYMENT_INFORMATION.getMessage(),
+                            exception.getMessage());
+                });
+
+        verify(tournamentUseCase).getTournamentById(any(Integer.class));
+        verify(tournamentUseCase,never()).updateRemainingCapacity(any(Tournament.class));
+        verify(paymentGateway,never()).processPayment(any(PurchaseDetails.class));
+        verify(ticketPersistenceGateway,never()).saveTicket(any(Ticket.class));
+    }
+
+    @Test
+    void shouldThrowBusinessExceptionWhenCurrencyNullForPaidTournament(){
+        purchaseDetails.setCurrency(null);
+
+        when(tournamentUseCase.getTournamentById(1)).thenReturn(Mono.just(tournament));
+
+        ticketUseCase.purchaseTicket(purchaseDetails, userId)
+                .as(StepVerifier::create)
+                .verifyErrorSatisfies(exception ->{
+                    assertTrue(exception instanceof BusinessException);
+                    assertEquals(BusinessErrorMessage.MISSING_PAYMENT_INFORMATION.getMessage(),
+                            exception.getMessage());
+                });
+
+        verify(tournamentUseCase).getTournamentById(any(Integer.class));
+        verify(tournamentUseCase,never()).updateRemainingCapacity(any(Tournament.class));
+        verify(paymentGateway,never()).processPayment(any(PurchaseDetails.class));
+        verify(ticketPersistenceGateway,never()).saveTicket(any(Ticket.class));
+    }
+
+
 }
