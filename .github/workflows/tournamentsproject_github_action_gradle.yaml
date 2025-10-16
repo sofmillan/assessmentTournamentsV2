@@ -1,4 +1,4 @@
-name: SonarQube
+name: Tournaments
 on:
   push:
     branches:
@@ -60,7 +60,8 @@ jobs:
         with:
           name: Package
           path: artifact-staging/
-  deploy:
+          
+  push-image:
     name: Deploy
     needs: build
     runs-on: ubuntu-latest
@@ -91,7 +92,7 @@ jobs:
   deploy-container:
     name: Run Container on EC2
     runs-on: self-hosted
-    needs: deploy
+    needs: push-image
 
     steps:
       - name: Configure AWS credentials
@@ -106,14 +107,12 @@ jobs:
       - name: Run Container Deployment
         run: |
           IMAGE_URI="${{ env.ECR_REPOSITORY_LINK }}:1.0.0"
-
-          echo "Stopping and removing existing container (if any)..."
+          
           docker stop events_container || true
           docker rm events_container || true
 
           docker pull $IMAGE_URI
 
-          echo "Running the new container..."
           docker run -d \
               --name events_container \
               -p 8080:8080 \
@@ -124,6 +123,4 @@ jobs:
               -e DB_URL="$DB_URL" \
               -e DB_PASSWORD="$DB_PASSWORD" \
               -e POSTMAN_APIKEY="$POSTMAN_APIKEY" \
-            $IMAGE_URI
-
-          echo "Deployment complete."        
+            $IMAGE_URI 
